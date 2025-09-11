@@ -20,7 +20,7 @@ command! -bar RadStatus            call raddbg#Status()
 
 " Default mappings (can be disabled by setting g:raddbg_map_keys = 0 before loading)
 if get(g:, 'raddbg_map_keys', 1)
-  nnoremap <silent> <leader>rb :RadToggleBreakpoint<CR>
+  nnoremap <silent> <leader>rb :RadClear<CR>:RadToggleBreakpoint<CR>
   nnoremap <silent> <leader>rs :RadStart<CR>
   nnoremap <silent> <leader>rS :RadStop<CR>
   nnoremap <silent> <leader>rr :RadRestart<CR>
