@@ -96,6 +96,8 @@ function! raddbg#Restart() abort
 endfunction
 
 function! raddbg#AddFunctionBreakpoint(name) abort
+  call s:ipc(['clear_breakpoints'])
+  call s:ipc(['add_function_breakpoint', 'WinMain'])
   call s:ipc(['add_function_breakpoint', a:name])
 endfunction
 

@@ -25,5 +25,5 @@ if get(g:, 'raddbg_map_keys', 1)
   nnoremap <silent> <leader>rS :RadStop<CR>
   nnoremap <silent> <leader>rr :RadRestart<CR>
   nnoremap <silent> <leader>rc :RadClear<CR>
-  nnoremap <silent> <leader>rf :RadClear<CR>:RadAddFunctionBreakpoint 
+  nnoremap <silent> <leader>rf :RadAddFunctionBreakpoint 
 endif
