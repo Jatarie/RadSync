@@ -1,0 +1,55 @@
+*raddbg.txt*   raddbg Vim plugin
+
+This plugin integrates with raddbg via its `--ipc` interface.
+It mirrors a subset of the behavior in the provided 10x Python sample:
+- On adding a breakpoint, it clears breakpoints in raddbg, sets a function
+  breakpoint on `WinMain`, and adds the file:line breakpoint.
+- On removing a breakpoint, it clears all breakpoints in raddbg.
+- Provides commands to run/stop/restart.
+
+INSTALL
+==============================================================================
+
+Using vim-plug:
+
+    Plug 'Matt/radsync', { 'dir': 'c:/Users/Matt/Desktop/RadSync' }
+
+Then run: :PlugInstall
+
+Alternatively, point to this folder with a local path:
+
+    Plug 'local-raddbg', { 'dir': 'c:/Users/Matt/Desktop/RadSync' }
+
+USAGE
+==============================================================================
+
+Commands:
+  :RadToggleBreakpoint           Toggle a breakpoint at the current line
+  :RadClear                      Clear all breakpoints (both Vim signs & raddbg)
+  :RadStart                      raddbg --ipc run
+  :RadStop                       raddbg --ipc kill_all
+  :RadRestart                    raddbg --ipc restart
+  :RadAddFunctionBreakpoint NAME raddbg --ipc add_function_breakpoint NAME
+  :RadStatus                     Show internal plugin status
+
+Default mappings (can be disabled with let g:raddbg_map_keys = 0):
+  <leader>rb  Toggle breakpoint
+  <leader>rs  Start (run)
+  <leader>rS  Stop (kill_all)
+  <leader>rr  Restart
+  <leader>rc  Clear breakpoints
+
+CONFIG
+==============================================================================
+
+  let g:raddbg_exe = 'raddbg'          " Path to raddbg executable (must be on PATH or absolute)
+  let g:raddbg_sign = '●'              " Sign text
+  let g:raddbg_sign_hl = 'WarningMsg'  " Sign highlight group
+  let g:raddbg_map_keys = 1            " Set to 0 to disable default mappings
+
+NOTES
+==============================================================================
+
+- Requires Vim with +signs.
+- system([...]) is used for subprocess execution; non-zero exit codes are ignored.
+- File paths use the buffer's full path at the moment you toggle the breakpoint.
