@@ -83,6 +83,7 @@ function! raddbg#Clear() abort
 endfunction
 
 function! raddbg#Start() abort
+  call s:ensure_raddbg_running()
   call s:ipc(['run'])
 endfunction
 
@@ -100,6 +101,68 @@ endfunction
 
 function! raddbg#Status() abort
   echo '[raddbg] breakpoints: ' . len(keys(s:breakpoints))
+endfunction
+
+" Ensure the raddbg UI process is running (Windows: raddbg.exe); if not, start it.
+function! s:ensure_raddbg_running() abort
+  if !s:is_raddbg_running()
+    call s:spawn_raddbg()
+    " Wait briefly for the UI to initialize so IPC doesn't race.
+    let l:tries = 10
+    while l:tries > 0 && !s:is_raddbg_running()
+      sleep 200m
+      let l:tries -= 1
+    endwhile
+  endif
+endfunction
+
+function! s:raddbg_image_name() abort
+  let l:exe = get(g:, 'raddbg_exe', 'raddbg')
+  let l:img = fnamemodify(l:exe, ':t')
+  if (has('win32') || has('win64')) && l:img !~? '\.exe$'
+    let l:img = l:img . '.exe'
+  endif
+  return l:img
+endfunction
+
+function! s:is_raddbg_running() abort
+  if has('win32') || has('win64')
+    let l:img = s:raddbg_image_name()
+    " Use tasklist to check if the process is present.
+    let l:out = systemlist(['tasklist', '/FI', 'IMAGENAME eq ' . l:img])
+    if v:shell_error != 0
+      return 0
+    endif
+    for l:line in l:out
+      if l:line =~? '^' . escape(l:img, '.*^$[]') . '\s'
+        return 1
+      endif
+    endfor
+    return 0
+  else
+    " Unix-like fallback: pgrep exact name
+    let l:exe = get(g:, 'raddbg_exe', 'raddbg')
+    call system('pgrep -x ' . shellescape(fnamemodify(l:exe, ':t')))
+    return v:shell_error == 0
+  endif
+endfunction
+
+function! s:spawn_raddbg() abort
+  let l:exe = get(g:, 'raddbg_exe', 'raddbg')
+  if has('win32') || has('win64')
+    if !executable(l:exe)
+      echohl ErrorMsg | echom '[raddbg] Cannot find executable: ' . l:exe | echohl None
+      return
+    endif
+    " Launch detached using cmd start so Vim isn't blocked.
+    call system(['cmd.exe', '/c', 'start', '', l:exe])
+  else
+    if exists('*job_start')
+      call job_start([l:exe])
+    else
+      silent execute '!'.l:exe.' &'
+    endif
+  endif
 endfunction
 
 function! s:ipc(args) abort
