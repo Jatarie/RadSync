@@ -37,6 +37,7 @@ function! raddbg#AddOrRemoveBreakpoint(bnum, lnum) abort
   if has_key(s:breakpoints, key)
     call raddbg#RemoveBreakpoint(a:bnum, a:lnum)
   else
+    call raddbg#Clear()
     call raddbg#AddBreakpoint(a:bnum, a:lnum)
   endif
 endfunction
