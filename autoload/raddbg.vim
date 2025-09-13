@@ -1,4 +1,5 @@
 " autoload/raddbg.vim
+scriptencoding utf-8
 
 let s:breakpoints = {}
 let s:sign_id_next = 5000
@@ -15,7 +16,14 @@ function! raddbg#Init() abort
   endif
 
   if has('signs')
-    execute 'sign define raddbg_breakpoint text=' . shellescape(g:raddbg_sign) . ' texthl=' . g:raddbg_sign_hl
+    " Provide a default clean highlight if user did not override
+    if !hlexists('RadDbgSign') && get(g:, 'raddbg_sign_hl', '') == 'WarningMsg'
+      highlight default RadDbgSign cterm=NONE gui=NONE guifg=#ff5555 guibg=NONE
+      let g:raddbg_sign_hl = 'RadDbgSign'
+    endif
+    " Remove prior definition (no error if absent) then define without extra quotes.
+    silent! sign undefine raddbg_breakpoint
+    execute printf('sign define raddbg_breakpoint text=%s texthl=%s', g:raddbg_sign, g:raddbg_sign_hl)
   endif
 endfunction
 
